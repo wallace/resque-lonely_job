@@ -12,9 +12,10 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "resque-lonelyjob"
   gem.require_paths = ["lib"]
-  gem.version       = Resque::Lonelyjob::VERSION
+  gem.version       = Resque::Plugins::Lonelyjob::VERSION
 
   gem.add_dependency 'resque', '~> 1.20.0'
+  gem.add_dependency 'mock_redis', '~> 0.4.1'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
 
@@ -26,7 +27,7 @@ Example:
   require 'resque/plugins/lonelyjob'
 
   class StrictlySerialJob
-    extend Resque::Jobs::LonelyJob
+    extend Resque::Plugins::LonelyJob
 
     use_queue :serial_work
 

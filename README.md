@@ -30,7 +30,7 @@ Example:
     require 'resque/plugins/lonelyjob'
 
     class StrictlySerialJob
-      extend Resque::Jobs::LonelyJob
+      extend Resque::Plugins::LonelyJob
 
       use_queue :serial_work
 
