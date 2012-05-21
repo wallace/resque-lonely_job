@@ -1,6 +1,13 @@
 # Resque::Lonelyjob
 
-TODO: Write a gem description
+A [Resque](https://github.com/defunkt/resque) plugin. Requires Resque 1.20.0.
+
+Ensures that for a given queue, only one worker is working on a job at any given
+time.  
+
+This differs from [resque-lock](from https://github.com/defunkt/resque-lock) in
+that the same job may be queued multiple times but you're guaranteed that first
+job queued will run to completion before subsequent jobs are run. 
 
 ## Installation
 
@@ -18,7 +25,20 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Example:
+
+    require 'resque/plugins/lonelyjob'
+
+    class StrictlySerialJob
+      extend Resque::Jobs::LonelyJob
+
+      use_queue :serial_work
+
+      def self.perform
+        # only one at a time in this block, no parallelism allowed for this
+        # particular queue
+      end
+    end
 
 ## Contributing
 
