@@ -29,7 +29,7 @@ Example:
   class StrictlySerialJob
     extend Resque::Plugins::LonelyJob
 
-    use_queue :serial_work
+    @queue = :serial_work
 
     def self.perform
       # only one at a time in this block, no parallelism allowed for this
