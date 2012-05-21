@@ -3,20 +3,28 @@ require 'resque-lonely_job/version'
 module Resque
   module Plugins
     module LonelyJob
-      def redis_key(queue)
-        "lonely_job:#{queue}"
+      LOCK_TIMEOUT = 60 * 60 * 24 * 5 # 5 days
+
+      def lock_timeout
+        Time.now.utc + LOCK_TIMEOUT + 1
       end
 
-      def can_lock_queue?(queue)
-        Resque.redis.setnx(redis_key(queue), true)
+      # Overwrite this method to uniquely identify which mutex should be used
+      # for a resque worker.
+      def redis_key(*args)
+        "lonely_job:#{@queue}"
       end
 
-      def unlock_queue(queue)
-        Resque.redis.del(redis_key(queue))
+      def can_lock_queue?(*args)
+        Resque.redis.setnx(redis_key(*args), lock_timeout)
+      end
+
+      def unlock_queue(*args)
+        Resque.redis.del(redis_key(*args))
       end
 
       def before_perform(*args)
-        unless can_lock_queue?(@queue)
+        unless can_lock_queue?(*args)
           # can't get the lock, so place self at the end of the queue
           Resque.enqueue(self, *args)
 
@@ -25,12 +33,12 @@ module Resque
         end
       end
 
-      def after_perform(*args)
-        unlock_queue(@queue)
-      end
-
-      def on_failure(*args)
-        unlock_queue(@queue)
+      def around_perform(*args)
+        begin
+          yield
+        ensure
+          unlock_queue(*args)
+        end
       end
     end
   end
