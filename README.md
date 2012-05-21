@@ -5,9 +5,10 @@ A [Resque](https://github.com/defunkt/resque) plugin. Requires Resque 1.20.0.
 Ensures that for a given queue, only one worker is working on a job at any given
 time.  
 
-This differs from [resque-lock](from https://github.com/defunkt/resque-lock) in
-that the same job may be queued multiple times but you're guaranteed that first
-job queued will run to completion before subsequent jobs are run. 
+This differs from [resque-lock](from https://github.com/defunkt/resque-lock) and
+[resque-loner](http://github.com/jayniz/resque-loner) in that the same job may
+be queued multiple times but you're guaranteed that first job queued will run to
+completion before subsequent jobs are run. 
 
 ## Installation
 
