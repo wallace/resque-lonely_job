@@ -1,6 +1,6 @@
 module Resque
   module Plugins
-    module Lonelyjob
+    module LonelyJob
       VERSION = "0.0.1"
     end
   end

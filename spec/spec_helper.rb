@@ -4,7 +4,7 @@ require 'rspec'
 
 require 'mock_redis'
 require 'resque'
-require 'resque-lonelyjob'
+require 'resque-lonely_job'
 
 RSpec.configure do |config|
   config.before(:suite) do

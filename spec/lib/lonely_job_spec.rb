@@ -1,13 +1,13 @@
 require 'spec_helper'
 
   class SerialJob
-    extend Resque::Plugins::Lonelyjob
+    extend Resque::Plugins::LonelyJob
     @queue = :serial_work
 
     def self.perform(*args); end
   end
 
-describe Resque::Plugins::Lonelyjob do
+describe Resque::Plugins::LonelyJob do
   describe ".can_lock_queue?" do
     before do
       SerialJob.unlock_queue(:serial_work)

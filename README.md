@@ -1,4 +1,4 @@
-# Resque::Lonelyjob
+# Resque::LonelyJob
 
 A [Resque](https://github.com/defunkt/resque) plugin. Requires Resque 1.20.0.
 
@@ -13,7 +13,7 @@ job queued will run to completion before subsequent jobs are run.
 
 Add this line to your application's Gemfile:
 
-    gem 'resque-lonelyjob'
+    gem 'resque-lonely_job'
 
 And then execute:
 
@@ -21,13 +21,13 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install resque-lonelyjob
+    $ gem install resque-lonely_job
 
 ## Usage
 
 Example:
 
-    require 'resque/plugins/lonelyjob'
+    require 'resque/plugins/lonely_job'
 
     class StrictlySerialJob
       extend Resque::Plugins::LonelyJob

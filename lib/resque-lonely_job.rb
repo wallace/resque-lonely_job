@@ -1,8 +1,8 @@
-require 'resque-lonelyjob/version'
+require 'resque-lonely_job/version'
 
 module Resque
   module Plugins
-    module Lonelyjob
+    module LonelyJob
       def redis_key(queue)
         "lonely_job:#{queue}"
       end
