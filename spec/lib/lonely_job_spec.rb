@@ -65,18 +65,19 @@ describe Resque::Plugins::LonelyJob do
         -> { job.perform }.should raise_error(Exception)
       end
 
-      it 'should place self at the end of the queue if unable to acquire the lock' do
-        Resque.size(:serial_work).should == 0
-
-        job = Resque::Job.new(:serial_work, { 'class' => 'SerialJob', 'args' => %w[account_one job_one] })
+      it 'should place self at the beginning of the queue if unable to acquire the lock' do
+        job1 = Resque::Job.create(:serial_work, 'SerialJob', %w[account_one job_one])
+        job2 = Resque::Job.create(:serial_work, 'SerialJob', %w[account_one job_two])
 
         SerialJob.should_receive(:can_lock_queue?).and_return(false)
 
         # perform returns false when DontPerform exception is raised in
         # before_perform callback
-        job.perform.should be_false
+        job1 = Resque.reserve(:serial_work)
+        job1.perform.should be_false
 
-        Resque.size(:serial_work).should == 1
+        first_queue_element = Resque.reserve(:serial_work)
+        first_queue_element.should == job1
       end
     end
 
@@ -110,18 +111,19 @@ describe Resque::Plugins::LonelyJob do
         -> { job.perform }.should raise_error(Exception)
       end
 
-      it 'should place self at the end of the queue if unable to acquire the lock' do
-        Resque.size(:serial_work).should == 0
-
-        job = Resque::Job.new(:serial_work, { 'class' => 'SerialJobWithCustomRedisKey', 'args' => %w[account_one job_one] })
+      it 'should place self at the beginning of the queue if unable to acquire the lock' do
+        job1 = Resque::Job.create(:serial_work, 'SerialJobWithCustomRedisKey', %w[account_one job_one])
+        job2 = Resque::Job.create(:serial_work, 'SerialJobWithCustomRedisKey', %w[account_one job_two])
 
         SerialJobWithCustomRedisKey.should_receive(:can_lock_queue?).and_return(false)
 
         # perform returns false when DontPerform exception is raised in
         # before_perform callback
-        job.perform.should be_false
+        job1 = Resque.reserve(:serial_work)
+        job1.perform.should be_false
 
-        Resque.size(:serial_work).should == 1
+        first_queue_element = Resque.reserve(:serial_work)
+        first_queue_element.should == job1
       end
     end
   end
