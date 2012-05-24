@@ -1,14 +1,15 @@
 # Resque::LonelyJob
 
-A [Resque](https://github.com/defunkt/resque) plugin. Requires Resque 1.20.0.
+A [Resque](https://github.com/defunkt/resque) plugin. Requires Resque >= 1.20.0.
 
 Ensures that for a given queue, only one worker is working on a job at any given
-time.  
+time.
 
 This differs from [resque-lock](from https://github.com/defunkt/resque-lock) and
 [resque-loner](http://github.com/jayniz/resque-loner) in that the same job may
 be queued multiple times but you're guaranteed that first job queued will run to
-completion before subsequent jobs are run. 
+completion before subsequent jobs are run.  In other words, job ordering is
+preserved.
 
 ## Installation
 
@@ -26,7 +27,7 @@ Or install it yourself as:
 
 ## Usage
 
-Example #1:
+#### Example #1
 
     require 'resque/plugins/lonely_job'
 
@@ -41,7 +42,9 @@ Example #1:
       end
     end
 
-Example #2: Let's say you want the serial constraint to apply at a more granular
+#### Example #2
+
+Let's say you want the serial constraint to apply at a more granular
 level.  Instead of applying at the queue level, you can overwrite the .redis\_key
 method.
 
@@ -61,9 +64,40 @@ method.
 
       def self.perform(account_id, *args)
         # only one at a time in this block, no parallelism allowed for this
-        # particular queue
+        # particular redis_key
       end
     end
+
+*NOTE*: Without careful consideration of your problem domain, worker starvation
+and/or unfairness is possible for jobs in this example.  Imagine a scenario
+where you have three jobs in the queue with two resque workers:
+
+    +---------------------------------------------------+
+    | :serial_work                                      |
+    |---------------------------------------------------|
+    |             |             |             |         |
+    | redis_key:  | redis_key:  | redis_key:  | ...     |
+    |    A        |    A        |    B        |         |
+    |             |             |             |         |
+    | job 1       | job 2       | job 3       |         |
+    +---------------------------------------------------+
+                                      ^
+                                      |
+      Possible starvation +-----------+
+      for this job and
+      subsequent ones
+
+
+  When the first worker grabs job 1, it'll acquire the mutex for processing
+  redis\_key A.  The second worker tries to grab the next job off the queue but
+  is unable to acquire the mutex for redis\_key A so it places job 2 back at the
+  head of the :serial\_work queue.  Until worker 1 completes job 1 and releases
+  the mutex for redis\_key A, no work will be done in this queue.
+
+  This issue may be avoided by employing dynamic queues,
+  http://blog.kabisa.nl/2010/03/16/dynamic-queue-assignment-for-resque-jobs/,
+  where the queue is a one to one mapping to the redis\_key.
+
 ## Contributing
 
 1. Fork it
