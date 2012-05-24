@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.version       = Resque::Plugins::LonelyJob::VERSION
 
   gem.add_dependency 'resque', '~> 1.20.0'
-  gem.add_dependency 'mock_redis', '~> 0.4.1'
+  gem.add_development_dependency 'mock_redis', '~> 0.4.1'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
 
