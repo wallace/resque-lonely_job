@@ -8,8 +8,11 @@ time.
 This differs from [resque-lock](from https://github.com/defunkt/resque-lock) and
 [resque-loner](http://github.com/jayniz/resque-loner) in that the same job may
 be queued multiple times but you're guaranteed that first job queued will run to
-completion before subsequent jobs are run.  In other words, job ordering is
-preserved.
+completion before subsequent jobs are run.
+
+However, it is possible that subsequent jobs are re-ordered depending upon
+worker behavior.  Therefore it is recommended that the payload for jobs be
+stored in a separate redis list distinct from the Resque queue (see Example #3).
 
 ## Installation
 
@@ -27,7 +30,7 @@ Or install it yourself as:
 
 ## Usage
 
-#### Example #1
+#### Example #1 -- One job running per queue
 
     require 'resque/plugins/lonely_job'
 
@@ -42,7 +45,7 @@ Or install it yourself as:
       end
     end
 
-#### Example #2
+#### Example #2 -- One job running per user-defined attribute
 
 Let's say you want the serial constraint to apply at a more granular
 level.  Instead of applying at the queue level, you can overwrite the .redis\_key
@@ -60,6 +63,12 @@ method.
       # namespace your key!
       def self.redis_key(account_id, *args)
         "lonely_job:strictly_serial_job:#{account_id}"
+      end
+
+      # Overwrite reenqueue to lpush instead of default rpush.  This attempts to
+      # preserve job ordering but job order is *NOT* guaranteed.
+      def self.reenqueue(*args)
+        Resque.redis.lpush("queue:#{Resque.queue_from_class(self)}", Resque.encode(class: self, args: args))
       end
 
       def self.perform(account_id, *args)
@@ -97,6 +106,10 @@ where you have three jobs in the queue with two resque workers:
   This issue may be avoided by employing dynamic queues,
   http://blog.kabisa.nl/2010/03/16/dynamic-queue-assignment-for-resque-jobs/,
   where the queue is a one to one mapping to the redis\_key.
+
+#### Example #3 -- One job running per user-defined attribute with job ordering preserved
+
+TODO
 
 ## Contributing
 
