@@ -65,9 +65,11 @@ describe Resque::Plugins::LonelyJob do
         -> { job.perform }.should raise_error(Exception)
       end
 
-      it 'should place self at the beginning of the queue if unable to acquire the lock' do
-        job1 = Resque::Job.create(:serial_work, 'SerialJob', %w[account_one job_one])
-        job2 = Resque::Job.create(:serial_work, 'SerialJob', %w[account_one job_two])
+      it 'should place self at the end of the queue if unable to acquire the lock' do
+        job1_payload = %w[account_one job_one]
+        job2_payload = %w[account_one job_two]
+        Resque::Job.create(:serial_work, 'SerialJob', job1_payload)
+        Resque::Job.create(:serial_work, 'SerialJob', job2_payload)
 
         SerialJob.should_receive(:can_lock_queue?).and_return(false)
 
@@ -77,7 +79,7 @@ describe Resque::Plugins::LonelyJob do
         job1.perform.should be_false
 
         first_queue_element = Resque.reserve(:serial_work)
-        first_queue_element.should == job1
+        first_queue_element.payload["args"].should == [job2_payload]
       end
     end
 
@@ -111,9 +113,11 @@ describe Resque::Plugins::LonelyJob do
         -> { job.perform }.should raise_error(Exception)
       end
 
-      it 'should place self at the beginning of the queue if unable to acquire the lock' do
-        job1 = Resque::Job.create(:serial_work, 'SerialJobWithCustomRedisKey', %w[account_one job_one])
-        job2 = Resque::Job.create(:serial_work, 'SerialJobWithCustomRedisKey', %w[account_one job_two])
+      it 'should place self at the end of the queue if unable to acquire the lock' do
+        job1_payload = %w[account_one job_one]
+        job2_payload = %w[account_one job_two]
+        Resque::Job.create(:serial_work, 'SerialJobWithCustomRedisKey', job1_payload)
+        Resque::Job.create(:serial_work, 'SerialJobWithCustomRedisKey', job2_payload)
 
         SerialJobWithCustomRedisKey.should_receive(:can_lock_queue?).and_return(false)
 
@@ -123,7 +127,7 @@ describe Resque::Plugins::LonelyJob do
         job1.perform.should be_false
 
         first_queue_element = Resque.reserve(:serial_work)
-        first_queue_element.should == job1
+        first_queue_element.payload["args"].should == [job2_payload]
       end
     end
   end

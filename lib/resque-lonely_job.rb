@@ -27,14 +27,14 @@ module Resque
       # role our own.  This is based on Resque.push but we don't need to
       # call Resque.watch_queue as the queue should already exist if we're
       # unable to get the lock.
-      def lpush(*args)
-        Resque.redis.lpush("queue:#{Resque.queue_from_class(self)}", Resque.encode(class: self, args: args))
+      def reenqueue(*args)
+        Resque.enqueue(self, *args)
       end
 
       def before_perform(*args)
         unless can_lock_queue?(*args)
-          # can't get the lock, so place at the front of the queue
-          lpush(*args)
+          # can't get the lock, so re-enqueue the task
+          reenqueue(*args)
 
           # and don't perform
           raise Resque::Job::DontPerform
