@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'mock_redis', '~> 0.4.1'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'debugger'
 
   gem.description   = <<desc
 Ensures that for a given queue, only one worker is working on a job at any given time.
