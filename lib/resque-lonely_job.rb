@@ -6,7 +6,7 @@ module Resque
       LOCK_TIMEOUT = 60 * 60 * 24 * 5 # 5 days
 
       def lock_timeout
-        Time.now.utc + LOCK_TIMEOUT + 1
+        Time.now.to_i + LOCK_TIMEOUT + 1
       end
 
       # Overwrite this method to uniquely identify which mutex should be used
