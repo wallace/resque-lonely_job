@@ -20,7 +20,7 @@ module Resque
         key = redis_key(*args)
         timeout = lock_timeout
 
-        # Per http://redis.io/commands/getset
+        # Per http://redis.io/commands/setnx
         return true  if Resque.redis.setnx(key, timeout)
         return false if Resque.redis.get(key).to_i > now
         return true  if Resque.redis.getset(key, timeout).to_i <= now
