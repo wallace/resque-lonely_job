@@ -6,7 +6,7 @@ module Resque
       LOCK_TIMEOUT = 60 * 60 * 24 * 5 # 5 days
 
       def lock_timeout
-        Time.now.utc + LOCK_TIMEOUT + 1
+        Time.now.to_i + LOCK_TIMEOUT + 1
       end
 
       # Overwrite this method to uniquely identify which mutex should be used
@@ -16,7 +16,15 @@ module Resque
       end
 
       def can_lock_queue?(*args)
-        Resque.redis.setnx(redis_key(*args), lock_timeout)
+        now = Time.now.to_i
+        key = redis_key(*args)
+        timeout = lock_timeout
+
+        # Per http://redis.io/commands/setnx
+        return true  if Resque.redis.setnx(key, timeout)
+        return false if Resque.redis.get(key).to_i > now
+        return true  if Resque.redis.getset(key, timeout).to_i <= now
+        return false
       end
 
       def unlock_queue(*args)

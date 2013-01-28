@@ -32,6 +32,37 @@ describe Resque::Plugins::LonelyJob do
       SerialJob.can_lock_queue?(:serial_work).should be_true
       SerialJob.can_lock_queue?(:serial_work).should be_false
     end
+
+    it 'cannot lock a queue with active lock' do
+      SerialJob.can_lock_queue?(:serial_work).should be_true
+      Timecop.travel(Date.today + 1) do
+        SerialJob.can_lock_queue?(:serial_work).should be_false
+      end
+    end
+
+    it 'can relock a queue with expired lock' do
+      SerialJob.can_lock_queue?(:serial_work).should be_true
+
+      Timecop.travel(Date.today + 10) do
+        SerialJob.can_lock_queue?(:serial_work).should be_true
+      end
+    end
+
+    it 'solves race condition with getset' do
+      SerialJob.can_lock_queue?(:serial_work).should be_true
+
+      Timecop.travel(Date.today + 10) do
+        threads = (1..10).to_a.map {
+          Thread.new {
+            Thread.current[:locked] = SerialJob.can_lock_queue?(:serial_work)
+          }
+        }
+
+        # Only one worker should acquire lock
+        locks = threads.map {|t| t.join; t[:locked] }
+        locks.count(true).should == 1
+      end
+    end
   end
 
   describe ".perform" do
