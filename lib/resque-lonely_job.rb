@@ -5,10 +5,6 @@ module Resque
     module LonelyJob
       LOCK_TIMEOUT = 60 * 60 * 24 * 5 # 5 days
 
-      def lock_timeout
-        Time.now.to_i + LOCK_TIMEOUT + 1
-      end
-
       # Overwrite this method to uniquely identify which mutex should be used
       # for a resque worker.
       def redis_key(*args)
@@ -16,15 +12,10 @@ module Resque
       end
 
       def can_lock_queue?(*args)
-        now = Time.now.to_i
         key = redis_key(*args)
-        timeout = lock_timeout
 
-        # Per http://redis.io/commands/setnx
-        return true  if Resque.redis.setnx(key, timeout)
-        return false if Resque.redis.get(key).to_i > now
-        return true  if Resque.redis.getset(key, timeout).to_i <= now
-        return false
+        # Per http://redis.io/commands/set
+        Resque.redis.set key, 'anystring', nx: true, ex: LOCK_TIMEOUT
       end
 
       def unlock_queue(*args)
