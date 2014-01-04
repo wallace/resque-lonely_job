@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/wallace/resque-lonely_job.png)](https://travis-ci.org/wallace/resque-lonely\_job)
 
-A [Resque](https://github.com/defunkt/resque) plugin. Requires Resque >= 1.20.0.
+A [Resque](https://github.com/resque/resque) plugin. Requires Resque >= 1.20.0.
 Requires ruby 1.9.3.
 
 Ensures that for a given queue, only one worker is working on a job at any given
