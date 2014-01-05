@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/wallace/resque-lonely_job.png)](https://travis-ci.org/wallace/resque-lonely\_job)
 
 A [Resque](https://github.com/resque/resque) plugin. Version 1.x Requires Resque >= 1.20.0 and < 1.25.0.
-Requires ruby 1.9.3.
+Requires a version of MRI Ruby >= 1.9.3.
 
 Ensures that for a given queue, only one worker is working on a job at any given
 time.
