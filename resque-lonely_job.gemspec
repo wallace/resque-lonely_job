@@ -18,7 +18,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'mock_redis', '~> 0.4.1'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
-  gem.add_development_dependency 'debugger'
   gem.add_development_dependency 'timecop'
 
   gem.description   = <<desc
