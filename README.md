@@ -115,7 +115,38 @@ where you have three jobs in the queue with two resque workers:
 
 #### Example #3 -- One job running per user-defined attribute with job ordering preserved
 
-TODO
+The secret to preserving job order semantics is to remove critical data from the
+resque job and store data in a separate redis list. Part of a running job's
+responsibility will be to grab data off of the separate redis list needed for it
+to complete its job.
+
+    +---------------------------------------------------+
+    | :serial_work for jobs associated with key A       |
+    |---------------------------------------------------|
+    |   data x    |   data y    |   data z    | ...     |
+    +---------------------------------------------------+
+
+    +---------------------------------------------------+
+    | :serial_work for jobs associated with key B       |
+    |---------------------------------------------------|
+    |   data m    |   data n    |   data o    | ...     |
+    +---------------------------------------------------+
+
+    +---------------------------------------------------+
+    | :serial_work                                      |
+    |---------------------------------------------------|
+    |             |             |             |         |
+    | redis_key:  | redis_key:  | redis_key:  | ...     |
+    |    A        |    A        |    B        |         |
+    |             |             |             |         |
+    | job 1       | job 2       | job 3       |         |
+    +---------------------------------------------------+
+
+It now doesn't matter whether job 1 and job 2 are re-ordered as whichever goes
+first will perform an atomic pop on the redis list that contains the data needed
+for its job (data x, data y, data z).
+
+*NOTE*: Worker starvation and fairness is still possible as in Example 2.
 
 ## Contributing
 
