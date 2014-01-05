@@ -2,7 +2,8 @@
 
 [![Build Status](https://travis-ci.org/wallace/resque-lonely_job.png)](https://travis-ci.org/wallace/resque-lonely\_job)
 
-A [Resque](https://github.com/resque/resque) plugin.
+A [Resque](https://github.com/resque/resque) plugin that implements [Semantic
+Versioning](http://semver.org/).
 
 Version 1.x Requires Resque >= 1.20.0 and < 1.25.0.
 
