@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/wallace/resque-lonely_job.png)](https://travis-ci.org/wallace/resque-lonely\_job)
 
-A [Resque](https://github.com/resque/resque) plugin. Requires Resque >= 1.20.0.
+A [Resque](https://github.com/resque/resque) plugin. Version 1.x Requires Resque >= 1.20.0 and < 1.25.0.
 Requires ruby 1.9.3.
 
 Ensures that for a given queue, only one worker is working on a job at any given
@@ -21,7 +21,7 @@ stored in a separate redis list distinct from the Resque queue (see Example #3).
 
 Add this line to your application's Gemfile:
 
-    gem 'resque-lonely_job'
+    gem 'resque-lonely_job', '~> 1.0.0'
 
 And then execute:
 
