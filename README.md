@@ -19,7 +19,7 @@ completion before subsequent jobs are run.
 
 However, it is a very *strong* possibility that subsequent jobs are re-ordered due to
 the implementation of
-[reenqueue](https://github.com/wallace/resque-lonely_job/blob/master/lib/resque-lonely_job.rb#L39).
+[reenqueue](https://github.com/wallace/resque-lonely_job/blob/master/lib/resque-lonely_job.rb#L35).
 (See Example #2 for an alternative approach that attempts to preserve job
 ordering but introduces the possibility of starvation.)
 
