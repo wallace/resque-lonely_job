@@ -12,14 +12,19 @@ Requires a version of MRI Ruby >= 1.9.3.
 Ensures that for a given queue, only one worker is working on a job at any given
 time.
 
-This differs from [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock) and
+Resque::LonelyJob differs from [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock) and
 [resque-loner](http://github.com/jayniz/resque-loner) in that the same job may
 be queued multiple times but you're guaranteed that first job queued will run to
 completion before subsequent jobs are run.
 
-However, it is possible that subsequent jobs are re-ordered depending upon
-worker behavior.  Therefore it is recommended that the payload for jobs be
-stored in a separate redis list distinct from the Resque queue (see Example #3).
+However, it is a very *strong* possibility that subsequent jobs are re-ordered due to
+the implementation of
+[reenqueue](https://github.com/wallace/resque-lonely_job/blob/master/lib/resque-lonely_job.rb#L39).
+(See Example #2 for an alternative approach that attempts to preserve job
+ordering but introduces the possibility of starvation.)
+
+Therefore it is recommended that the payload for jobs be stored in a separate
+redis list distinct from the Resque queue (see Example #3).
 
 ## Installation
 
@@ -73,7 +78,8 @@ method.
       end
 
       # Overwrite reenqueue to lpush instead of default rpush.  This attempts to
-      # preserve job ordering but job order is *NOT* guaranteed.
+      # preserve job ordering but job order is *NOT* guaranteed and also not
+      # likely. See the comment on SHA: e9912fb2 for why.
       def self.reenqueue(*args)
         Resque.redis.lpush("queue:#{Resque.queue_from_class(self)}", Resque.encode(class: self, args: args))
       end
@@ -146,8 +152,6 @@ to complete its job.
 It now doesn't matter whether job 1 and job 2 are re-ordered as whichever goes
 first will perform an atomic pop on the redis list that contains the data needed
 for its job (data x, data y, data z).
-
-*NOTE*: Worker starvation and fairness is still possible as in Example 2.
 
 ## Contributing
 
