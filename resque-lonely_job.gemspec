@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.name          = "resque-lonely_job"
   gem.require_paths = ["lib"]
   gem.version       = Resque::Plugins::LonelyJob::VERSION
+  gem.license       = "MIT"
 
   gem.add_dependency 'resque', '>= 1.2'
   gem.add_development_dependency 'mock_redis'
