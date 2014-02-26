@@ -2,15 +2,9 @@
 
 [![Build Status](https://travis-ci.org/wallace/resque-lonely_job.png)](https://travis-ci.org/wallace/resque-lonely\_job)
 
-A [Resque](https://github.com/resque/resque) plugin that implements [Semantic
-Versioning](http://semver.org/).
-
-Version 1.x Requires Resque >= 1.20.0 and < 1.25.0.
-
-Requires a version of MRI Ruby >= 1.9.3.
-
-Ensures that for a given queue, only one worker is working on a job at any given
-time.
+A [semanticaly versioned](http://semver.org/)
+[Resque](https://github.com/resque/resque) plugin which ensures for a given
+queue, that only one worker is working on a job at any given time.
 
 Resque::LonelyJob differs from [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock) and
 [resque-loner](http://github.com/jayniz/resque-loner) in that the same job may
@@ -25,6 +19,12 @@ ordering but introduces the possibility of starvation.)
 
 Therefore it is recommended that the payload for jobs be stored in a separate
 redis list distinct from the Resque queue (see Example #3).
+
+## Requirements
+
+Version 1.x Requires Resque >= 1.20.0 and < 1.25.0.
+
+Requires a version of MRI Ruby >= 1.9.3.
 
 ## Installation
 
