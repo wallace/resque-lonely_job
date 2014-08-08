@@ -9,6 +9,10 @@ module Resque
         Time.now.to_i + LOCK_TIMEOUT + 1
       end
 
+      def requeue_interval
+        self.instance_variable_get(:@requeue_interval) || 1
+      end
+
       # Overwrite this method to uniquely identify which mutex should be used
       # for a resque worker.
       def redis_key(*args)
@@ -37,6 +41,9 @@ module Resque
 
       def before_perform(*args)
         unless can_lock_queue?(*args)
+          # Sleep so the CPU's rest
+          sleep(requeue_interval)
+
           # can't get the lock, so re-enqueue the task
           reenqueue(*args)
 
