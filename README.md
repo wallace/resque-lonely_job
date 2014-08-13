@@ -153,6 +153,32 @@ It now doesn't matter whether job 1 and job 2 are re-ordered as whichever goes
 first will perform an atomic pop on the redis list that contains the data needed
 for its job (data x, data y, data z).
 
+#### Example #4 -- Requeue interval
+
+The behavior when multiple jobs exist in a queue protected by resque-lonely_job
+is for one job to be worked, while the other is continuously dequeued and
+requeued until the first job is finished.  This can result in that worker
+process pegging a CPU/core on a worker server.  To guard against this, the
+default behavior is to sleep for 1 second before the requeue, which will allow
+the cpu to perform other work.
+
+This can be customized using a ```@requeue_interval``` class instance variable
+in your job like so:
+
+
+    require 'resque-lonely_job'
+
+    class StrictlySerialJob
+      extend Resque::Plugins::LonelyJob
+
+      @queue = :serial_work
+      @requeue_interval = 5         # sleep for 5 seconds before requeueing
+
+      def self.perform
+        # some implementation
+      end
+    end
+
 ## Contributing
 
 1. Fork it

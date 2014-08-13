@@ -23,6 +23,17 @@ describe Resque::Plugins::LonelyJob do
     Resque.redis.flushall
   end
 
+  describe ".requeue_interval" do
+    it "should default to 5" do
+      expect(SerialJob.requeue_interval).to eql(1)
+    end
+
+    it "should be overridable with a class instance var" do
+      SerialJob.instance_variable_set(:@requeue_interval, 5)
+      expect(SerialJob.requeue_interval).to eql(5)
+    end
+  end
+
   describe ".can_lock_queue?" do
     it 'can lock a queue' do
       expect(SerialJob.can_lock_queue?(:serial_work)).to eql(true)
@@ -66,6 +77,10 @@ describe Resque::Plugins::LonelyJob do
   end
 
   describe ".perform" do
+    before do
+      SerialJob.instance_variable_set(:@requeue_interval, 0)
+    end
+
     describe "using the default redis key" do
       it 'should lock and unlock the queue' do
         job = Resque::Job.new(:serial_work, { 'class' => 'SerialJob', 'args' => %w[account_one job_one] })
