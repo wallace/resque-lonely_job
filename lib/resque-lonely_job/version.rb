@@ -1,7 +1,7 @@
 module Resque
   module Plugins
     module LonelyJob
-      VERSION = "1.0.3"
+      VERSION = "1.1.3"
     end
   end
 end
