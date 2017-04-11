@@ -15,13 +15,13 @@ module Resque
 
       # Overwrite this method to uniquely identify which mutex should be used
       # for a resque worker.
-      def redis_key(*args)
+      def lonely_job_redis_key(*args)
         "lonely_job:#{@queue}"
       end
 
       def can_lock_queue?(*args)
         now = Time.now.to_i
-        key = redis_key(*args)
+        key = lonely_job_redis_key(*args)
         timeout = lock_timeout
 
         # Per http://redis.io/commands/setnx
@@ -32,7 +32,7 @@ module Resque
       end
 
       def unlock_queue(*args)
-        Resque.redis.del(redis_key(*args))
+        Resque.redis.del(lonely_job_redis_key(*args))
       end
 
       def reenqueue(*args)

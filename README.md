@@ -73,7 +73,7 @@ method.
       # Returns a string that will be used as the redis key
       # NOTE: it is recommended to prefix your string with the 'lonely_job:' to
       # namespace your key!
-      def self.redis_key(account_id, *args)
+      def self.lonely_job_redis_key(account_id, *args)
         "lonely_job:strictly_serial_job:#{account_id}"
       end
 
@@ -86,7 +86,7 @@ method.
 
       def self.perform(account_id, *args)
         # only one at a time in this block, no parallelism allowed for this
-        # particular redis_key
+        # particular lonely_job_redis_key
       end
     end
 
@@ -98,7 +98,7 @@ where you have three jobs in the queue with two resque workers:
     | :serial_work                                      |
     |---------------------------------------------------|
     |             |             |             |         |
-    | redis_key:  | redis_key:  | redis_key:  | ...     |
+    | lonely_job_redis_key:  | lonely_job_redis_key:  | lonely_job_redis_key:  | ...     |
     |    A        |    A        |    B        |         |
     |             |             |             |         |
     | job 1       | job 2       | job 3       |         |
@@ -143,7 +143,7 @@ to complete its job.
     | :serial_work                                      |
     |---------------------------------------------------|
     |             |             |             |         |
-    | redis_key:  | redis_key:  | redis_key:  | ...     |
+    | lonely_job_redis_key:  | lonely_job_redis_key:  | lonely_job_redis_key:  | ...     |
     |    A        |    A        |    B        |         |
     |             |             |             |         |
     | job 1       | job 2       | job 3       |         |

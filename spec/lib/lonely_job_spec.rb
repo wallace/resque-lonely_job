@@ -11,7 +11,7 @@ class SerialJobWithCustomRedisKey
   extend Resque::Plugins::LonelyJob
   @queue = :serial_work
 
-  def redis_key(account_id, *args)
+  def self.lonely_job_redis_key(account_id, *args)
     "lonely_job:#{@queue}:#{account_id}"
   end
 
@@ -129,7 +129,7 @@ describe Resque::Plugins::LonelyJob do
       end
     end
 
-    describe "with a custom redis_key" do
+    describe "with a custom lonely_job_redis_key" do
       it 'should lock and unlock the queue' do
         job = Resque::Job.new(:serial_work, { 'class' => 'SerialJobWithCustomRedisKey', 'args' => %w[account_one job_one] })
 
