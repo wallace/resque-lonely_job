@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Resque::Plugins::UniqueAtRuntime::VERSION
   gem.license       = "MIT"
+  gem.required_ruby_version = ">= 1.9.3"
 
   gem.add_dependency 'resque', '>= 1.2'
   gem.add_development_dependency 'mock_redis'
