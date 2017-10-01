@@ -1,19 +1,25 @@
-# Resque::LonelyJob
+# Resque::Plugins::UniqueAtRuntime
 
-[![Build Status](https://travis-ci.org/wallace/resque-lonely_job.png)](https://travis-ci.org/wallace/resque-lonely\_job)
+[![Build Status](https://travis-ci.org/pboling/resque-unique_at_runtime.png)](https://travis-ci.org/pboling/resque-lonely\_job)
 
 A [semanticaly versioned](http://semver.org/)
 [Resque](https://github.com/resque/resque) plugin which ensures for a given
 queue, that only one worker is working on a job at any given time.
 
-Resque::LonelyJob differs from [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock) and
+Resque::Plugins::UniqueAtRuntime differs from [resque-lonely_job](https://github.com/wallace/resque-lonely_job) in that it is compatible with, and can be used at the same time as, [resque-solo](https://github.com/neighborland/resque_solo).
+
+Resque::Plugins::UniqueAtRuntime differs from [resque_solo](https://github.com/neighborland/resque_solo) in that `resque-solo` offers **queue-time** uniqueness, while `resque-unique_at_runtime` offers **runtime** uniqueness.
+
+To use `resque-solo` and `resque-unique_at_runtime` together, with fine control of per job configuration of uniqueness at runtime and queue-time it is recommended to use [resque-unique_by_arity](https://github.com/pboling/resque-unique_by_arity).
+
+Resque::Plugins::UniqueAtRuntime differs from [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock) and
 [resque-loner](http://github.com/jayniz/resque-loner) in that the same job may
 be queued multiple times but you're guaranteed that first job queued will run to
 completion before subsequent jobs are run.
 
 However, it is a very *strong* possibility that subsequent jobs are re-ordered due to
 the implementation of
-[reenqueue](https://github.com/wallace/resque-lonely_job/blob/master/lib/resque-lonely_job.rb#L35).
+[reenqueue](https://github.com/pboling/resque-unique_at_runtime/blob/master/lib/resque-unique_at_runtime.rb#L35).
 (See Example #2 for an alternative approach that attempts to preserve job
 ordering but introduces the possibility of starvation.)
 
@@ -22,15 +28,13 @@ redis list distinct from the Resque queue (see Example #3).
 
 ## Requirements
 
-Version 1.x Requires Resque >= 1.20.0 and < 1.25.0.
-
 Requires a version of MRI Ruby >= 1.9.3.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'resque-lonely_job', '~> 1.0.0'
+    gem 'resque-unique_at_runtime', '~> 1.0.0'
 
 And then execute:
 
@@ -38,16 +42,16 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install resque-lonely_job
+    $ gem install resque-unique_at_runtime
 
 ## Usage
 
 #### Example #1 -- One job running per queue
 
-    require 'resque-lonely_job'
+    require 'resque-unique_at_runtime'
 
     class StrictlySerialJob
-      extend Resque::Plugins::LonelyJob
+      extend Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
 
@@ -63,18 +67,18 @@ Let's say you want the serial constraint to apply at a more granular
 level.  Instead of applying at the queue level, you can overwrite the .redis\_key
 method.
 
-    require 'resque-lonely_job'
+    require 'resque-unique_at_runtime'
 
     class StrictlySerialJob
-      extend Resque::Plugins::LonelyJob
+      extend Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
 
       # Returns a string that will be used as the redis key
-      # NOTE: it is recommended to prefix your string with the 'lonely_job:' to
+      # NOTE: it is recommended to prefix your string with the 'unique_at_runtime:' to
       # namespace your key!
-      def self.lonely_job_redis_key(account_id, *args)
-        "lonely_job:strictly_serial_job:#{account_id}"
+      def self.unique_at_runtime_redis_key(account_id, *args)
+        "unique_at_runtime:strictly_serial_job:#{account_id}"
       end
 
       # Overwrite reenqueue to lpush instead of default rpush.  This attempts to
@@ -86,7 +90,7 @@ method.
 
       def self.perform(account_id, *args)
         # only one at a time in this block, no parallelism allowed for this
-        # particular lonely_job_redis_key
+        # particular unique_at_runtime_redis_key
       end
     end
 
@@ -98,7 +102,7 @@ where you have three jobs in the queue with two resque workers:
     | :serial_work                                      |
     |---------------------------------------------------|
     |             |             |             |         |
-    | lonely_job_redis_key:  | lonely_job_redis_key:  | lonely_job_redis_key:  | ...     |
+    | unique_at_runtime_redis_key:  | unique_at_runtime_redis_key:  | unique_at_runtime_redis_key:  | ...     |
     |    A        |    A        |    B        |         |
     |             |             |             |         |
     | job 1       | job 2       | job 3       |         |
@@ -143,7 +147,7 @@ to complete its job.
     | :serial_work                                      |
     |---------------------------------------------------|
     |             |             |             |         |
-    | lonely_job_redis_key:  | lonely_job_redis_key:  | lonely_job_redis_key:  | ...     |
+    | unique_at_runtime_redis_key:  | unique_at_runtime_redis_key:  | unique_at_runtime_redis_key:  | ...     |
     |    A        |    A        |    B        |         |
     |             |             |             |         |
     | job 1       | job 2       | job 3       |         |
@@ -155,7 +159,7 @@ for its job (data x, data y, data z).
 
 #### Example #4 -- Requeue interval
 
-The behavior when multiple jobs exist in a queue protected by resque-lonely_job
+The behavior when multiple jobs exist in a queue protected by resque-unique_at_runtime
 is for one job to be worked, while the other is continuously dequeued and
 requeued until the first job is finished.  This can result in that worker
 process pegging a CPU/core on a worker server.  To guard against this, the
@@ -166,10 +170,10 @@ This can be customized using a ```@requeue_interval``` class instance variable
 in your job like so:
 
 
-    require 'resque-lonely_job'
+    require 'resque-unique_at_runtime'
 
     class StrictlySerialJob
-      extend Resque::Plugins::LonelyJob
+      extend Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
       @requeue_interval = 5         # sleep for 5 seconds before requeueing

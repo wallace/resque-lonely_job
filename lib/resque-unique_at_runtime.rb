@@ -1,8 +1,8 @@
-require 'resque-lonely_job/version'
+require 'resque-unique_at_runtime/version'
 
 module Resque
   module Plugins
-    module LonelyJob
+    module UniqueAtRuntime
       LOCK_TIMEOUT = 60 * 60 * 24 * 5 # 5 days
 
       def lock_timeout
@@ -15,13 +15,13 @@ module Resque
 
       # Overwrite this method to uniquely identify which mutex should be used
       # for a resque worker.
-      def lonely_job_redis_key(*args)
-        "lonely_job:#{@queue}"
+      def unique_at_runtime_redis_key(*_)
+        "unique_at_runtime:#{@queue}"
       end
 
       def can_lock_queue?(*args)
         now = Time.now.to_i
-        key = lonely_job_redis_key(*args)
+        key = unique_at_runtime_redis_key(*args)
         timeout = lock_timeout
 
         # Per http://redis.io/commands/setnx
@@ -32,7 +32,7 @@ module Resque
       end
 
       def unlock_queue(*args)
-        Resque.redis.del(lonely_job_redis_key(*args))
+        Resque.redis.del(unique_at_runtime_redis_key(*args))
       end
 
       def reenqueue(*args)
