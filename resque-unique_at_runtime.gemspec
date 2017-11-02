@@ -1,19 +1,20 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/resque-lonely_job/version', __FILE__)
+require File.expand_path('../lib/resque-unique_at_runtime/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["Jonathan R. Wallace"]
-  gem.email         = ["jonathan.wallace@gmail.com"]
-  gem.summary       = %q{A resque plugin that ensures that only one job for a given queue will be running on any worker at a given time.}
-  gem.homepage      = "http://github.com/wallace/resque-lonely_job"
+  gem.authors       = ["Peter H. Boling","Jonathan R. Wallace"]
+  gem.email         = ["peter.boling@gmail.com","jonathan.wallace@gmail.com"]
+  gem.summary       = %q{A resque plugin that ensures job uniqueness at runtime.}
+  gem.homepage      = "http://github.com/pboling/resque-unique_at_runtime"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
-  gem.name          = "resque-lonely_job"
+  gem.name          = "resque-unique_at_runtime"
   gem.require_paths = ["lib"]
-  gem.version       = Resque::Plugins::LonelyJob::VERSION
+  gem.version       = Resque::Plugins::UniqueAtRuntime::VERSION
   gem.license       = "MIT"
+  gem.required_ruby_version = ">= 1.9.3"
 
   gem.add_dependency 'resque', '>= 1.2'
   gem.add_development_dependency 'mock_redis'
@@ -26,10 +27,10 @@ Ensures that for a given queue, only one worker is working on a job at any given
 
 Example:
 
-  require 'resque/plugins/lonely_job'
+  require 'resque/plugins/unique_at_runtime'
 
   class StrictlySerialJob
-    extend Resque::Plugins::LonelyJob
+    extend Resque::Plugins::UniqueAtRuntime
 
     @queue = :serial_work
 

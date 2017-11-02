@@ -1,24 +1,24 @@
 require 'spec_helper'
 
 class SerialJob
-  extend Resque::Plugins::LonelyJob
+  extend Resque::Plugins::UniqueAtRuntime
   @queue = :serial_work
 
   def self.perform(*args); end
 end
 
 class SerialJobWithCustomRedisKey
-  extend Resque::Plugins::LonelyJob
+  extend Resque::Plugins::UniqueAtRuntime
   @queue = :serial_work
 
-  def self.lonely_job_redis_key(account_id, *args)
-    "lonely_job:#{@queue}:#{account_id}"
+  def self.unique_at_runtime_redis_key(account_id, *args)
+    "unique_at_runtime:#{@queue}:#{account_id}"
   end
 
   def self.perform(account_id, *args); end
 end
 
-describe Resque::Plugins::LonelyJob do
+describe Resque::Plugins::UniqueAtRuntime do
   before do
     Resque.redis.flushall
   end
@@ -129,7 +129,7 @@ describe Resque::Plugins::LonelyJob do
       end
     end
 
-    describe "with a custom lonely_job_redis_key" do
+    describe "with a custom unique_at_runtime_redis_key" do
       it 'should lock and unlock the queue' do
         job = Resque::Job.new(:serial_work, { 'class' => 'SerialJobWithCustomRedisKey', 'args' => %w[account_one job_one] })
 
