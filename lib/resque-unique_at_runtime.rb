@@ -3,12 +3,14 @@ require 'resque-unique_at_runtime/version'
 module Resque
   module Plugins
     module UniqueAtRuntime
+      LOCK_TIMEOUT = 60 * 60 * 24 * 5
+      
       def runtime_lock_timeout_at(now)
         now + runtime_lock_timeout + 1
       end
 
       def runtime_lock_timeout
-        self.instance_variable_get(:@runtime_lock_timeout) || 60 * 60 * 24 * 5
+        self.instance_variable_get(:@runtime_lock_timeout) || LOCK_TIMEOUT
       end
 
       def runtime_requeue_interval
