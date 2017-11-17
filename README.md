@@ -165,7 +165,7 @@ process pegging a CPU/core on a worker server.  To guard against this, the
 default behavior is to sleep for 1 second before the requeue, which will allow
 the cpu to perform other work.
 
-This can be customized using a ```@requeue_interval``` class instance variable
+This can be customized using a ```@runtime_requeue_interval``` class instance variable
 in your job like so:
 
 
@@ -175,7 +175,7 @@ in your job like so:
       extend Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
-      @requeue_interval = 5         # sleep for 5 seconds before requeueing
+      @runtime_requeue_interval = 5         # sleep for 5 seconds before requeueing
 
       def self.perform
         # some implementation
