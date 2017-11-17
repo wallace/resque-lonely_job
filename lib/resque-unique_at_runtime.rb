@@ -4,6 +4,7 @@ module Resque
   module Plugins
     module UniqueAtRuntime
       LOCK_TIMEOUT = 60 * 60 * 24 * 5
+      REQUEUE_INTERVAL = 1
       
       def runtime_lock_timeout_at(now)
         now + runtime_lock_timeout + 1
@@ -14,7 +15,7 @@ module Resque
       end
 
       def runtime_requeue_interval
-        self.instance_variable_get(:@runtime_requeue_interval) || 1
+        self.instance_variable_get(:@runtime_requeue_interval) || REQUEUE_INTERVAL
       end
 
       # Overwrite this method to uniquely identify which mutex should be used
