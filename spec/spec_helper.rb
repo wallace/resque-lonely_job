@@ -4,6 +4,11 @@ require 'mock_redis'
 require 'resque'
 require 'timecop'
 
+require 'byebug' if RbConfig::CONFIG['RUBY_INSTALL_NAME'] == 'ruby'
+
+require 'simplecov'
+SimpleCov.start
+
 # This gem
 require 'resque-unique_at_runtime'
 

@@ -1,5 +1,35 @@
+env:
+  global:
+  - JRUBY_OPTS="-Xcli.debug=true --debug"
+  - CC_TEST_REPORTER_ID=dbf17209b125b5a7b2e492fc5cf6e439a00a5ab8f0d4c10c926fc68564813cae
+
+before_script:
+- curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+- chmod +x ./cc-test-reporter
+- ./cc-test-reporter before-build
+
+script:
+- bundle exec rspec
+
+after_script:
+- ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+before_install:
+- gem update --system
+- gem install bundler
+
+install:
+- bundle install
+
+bundler_args: --no-deployment --jobs 3 --retry 3
+
+cache: bundler
+
 language: ruby
+sudo: false
+
 rvm:
-  - 2.2.8
-  - 2.3.5
-  - 2.4.2
+  - 2.2.10
+  - 2.3.7
+  - 2.4.5
+  - 2.5.1
