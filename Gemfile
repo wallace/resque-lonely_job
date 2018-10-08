@@ -4,7 +4,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 group :test do
   gem 'rubocop', '~> 0.59.0'
-  gem 'rubocop-rspec', '~> 1.24.0'
+  gem 'rubocop-rspec', '~> 1.30.0'
   gem 'byebug', '~> 10', platform: :mri, require: false
   gem 'pry', '~> 0', platform: :mri, require: false
   gem 'pry-byebug', '~> 3', platform: :mri, require: false
