@@ -1,15 +1,17 @@
-require "resque/unique_at_runtime/version"
+# frozen_string_literal: true
+
+require 'resque/unique_at_runtime/version'
 
 # Ruby Std Lib
-require "digest/md5"
+require 'digest/md5'
 
 # External Gems
-require "resque"
+require 'resque'
 
 # This Gem
-require "resque/plugins/unique_at_runtime"
-require "resque/unique_at_runtime/resque_ext/resque"
-require "resque/unique_at_runtime/configuration"
+require 'resque/plugins/unique_at_runtime'
+require 'resque/unique_at_runtime/resque_ext/resque'
+require 'resque/unique_at_runtime/configuration'
 
 module Resque
   module UniqueAtRuntime
@@ -20,7 +22,7 @@ module Resque
 
     def runtime_unique_log(message, config_proxy = nil)
       config_proxy ||= uniqueness_configuration
-      config_proxy.unique_logger.send(config_proxy.unique_log_level, message) if config_proxy.unique_logger
+      config_proxy.unique_logger&.send(config_proxy.unique_log_level, message)
     end
 
     def runtime_unique_debug(message, config_proxy = nil)

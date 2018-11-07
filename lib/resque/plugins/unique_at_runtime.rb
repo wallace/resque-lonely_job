@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Resque
   module Plugins
     # If you want your job to support uniqueness at runtime, simply include
@@ -23,11 +25,11 @@ module Resque
         end
 
         def runtime_lock_timeout
-          self.instance_variable_get(:@runtime_lock_timeout) || Resque::UniqueAtRuntime::LOCK_TIMEOUT
+          instance_variable_get(:@runtime_lock_timeout) || Resque::UniqueAtRuntime::LOCK_TIMEOUT
         end
 
         def runtime_requeue_interval
-          self.instance_variable_get(:@runtime_requeue_interval) || Resque::UniqueAtRuntime::REQUEUE_INTERVAL
+          instance_variable_get(:@runtime_requeue_interval) || Resque::UniqueAtRuntime::REQUEUE_INTERVAL
         end
 
         # Overwrite this method to uniquely identify which mutex should be used
@@ -54,7 +56,8 @@ module Resque
           return false if Resque.redis.setnx(key, timeout)
           return key if Resque.redis.get(key).to_i > now
           return false if Resque.redis.getset(key, timeout).to_i <= now
-          return key
+
+          key
         end
 
         def unlock_queue(*args)
@@ -80,25 +83,23 @@ module Resque
             # and don't perform
             raise Resque::Job::DontPerform
           else
-            puts "uniqueness check passed will perform" if ENV['RESQUE_DEBUG']
+            puts 'uniqueness check passed will perform' if ENV['RESQUE_DEBUG']
             true
           end
         end
 
         def around_perform_unlock_runtime(*args)
-          begin
-            yield
-          ensure
-            unlock_queue(*args)
-          end
+          yield
+        ensure
+          unlock_queue(*args)
         end
 
         # There may be scenarios where the around_perform's ensure unlock±
         #   duplicates the on_failure unlock, but that's a small price to pay for
         #   uniqueness.
         def on_failure_unlock_runtime(*args)
-        puts "unique_at_runtime: on failure unlock" if ENV['RESQUE_DEBUG']
-        unlock_queue(*args)
+          puts 'unique_at_runtime: on failure unlock' if ENV['RESQUE_DEBUG']
+          unlock_queue(*args)
         end
       end
     end
