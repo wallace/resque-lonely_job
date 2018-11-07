@@ -63,7 +63,7 @@ Or install it yourself as:
     require 'resque-unique_at_runtime'
 
     class StrictlySerialJob
-      extend Resque::Plugins::UniqueAtRuntime
+      include Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
 
@@ -82,7 +82,7 @@ method.
     require 'resque-unique_at_runtime'
 
     class StrictlySerialJob
-      extend Resque::Plugins::UniqueAtRuntime
+      include Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
 
@@ -171,7 +171,7 @@ for its job (data x, data y, data z).
 
 #### Example #4 -- Requeue interval
 
-The behavior when multiple jobs exist in a queue protected by resque-unique_at_runtime
+The behavior when multiple jobs exist in a queue protected by `resque-unique_at_runtime`
 is for one job to be worked, while the other is continuously dequeued and
 requeued until the first job is finished.  This can result in that worker
 process pegging a CPU/core on a worker server.  To guard against this, the
@@ -185,7 +185,7 @@ in your job like so:
     require 'resque-unique_at_runtime'
 
     class StrictlySerialJob
-      extend Resque::Plugins::UniqueAtRuntime
+      include Resque::Plugins::UniqueAtRuntime
 
       @queue = :serial_work
       @runtime_requeue_interval = 5         # sleep for 5 seconds before requeueing
@@ -194,6 +194,16 @@ in your job like so:
         # some implementation
       end
     end
+
+#### Example #5 -- Check if a job is running
+
+`resque-unique_at_runtime` extends `Resque` with a new method `running?`.
+
+It can tell you if a job with a specific signature is running, based on the
+ presence of the runtime uniqueness key.
+
+Caveat: It can be difficult to get the signature right, especially if you have
+tools that enhance job signatures with options.  The signature is always 
 
 ## Contributing
 
@@ -224,7 +234,7 @@ dependency on this gem using the [Pessimistic Version Constraint][pvc] with two 
 For example:
 
 ```ruby
-spec.add_dependency 'resque-unique_at_runtime', '~> 0.0'
+spec.add_dependency 'unique_at_runtime', '~> 0.0'
 ```
 
 
