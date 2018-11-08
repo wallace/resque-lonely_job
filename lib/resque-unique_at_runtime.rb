@@ -6,6 +6,7 @@ require 'resque/unique_at_runtime/version'
 require 'digest/md5'
 
 # External Gems
+require 'colorized_string'
 require 'resque'
 
 # This Gem
@@ -13,12 +14,14 @@ require 'resque/plugins/unique_at_runtime'
 require 'resque/unique_at_runtime/resque_ext/resque'
 require 'resque/unique_at_runtime/configuration'
 
+# See lib/resque/plugins/unique_at_runtime.rb for the actual plugin
+#
+# This is not that ^.  Rather, it is an API used by the plugin or as tools by a
+#   developer.  These methods are not intended to be included/extended into
+#   Resque, Resque::Job, or Resque::Queue.
 module Resque
   module UniqueAtRuntime
-    LOCK_TIMEOUT = 60 * 60 * 24 * 5
-    REQUEUE_INTERVAL = 1
-    env_debug = ENV['RESQUE_DEBUG']
-    RUNTIME_DEBUG = env_debug == 'true' || (env_debug.is_a?(String) && env_debug.match?(/runtime/)) || env_debug
+    PLUGIN_TAG = (ColorizedString['[R-UAR] '].blue).freeze
 
     def runtime_unique_log(message, config_proxy = nil)
       config_proxy ||= uniqueness_configuration
@@ -27,9 +30,8 @@ module Resque
 
     def runtime_unique_debug(message, config_proxy = nil)
       config_proxy ||= uniqueness_configuration
-      config_proxy.unique_logger.debug(message) if RUNTIME_DEBUG
+      config_proxy.unique_logger&.debug("#{PLUGIN_TAG}#{message}") if config_proxy.debug_mode
     end
-    module_function(:runtime_unique_log, :runtime_unique_debug)
 
     # There are times when the class will need access to the configuration object,
     #   such as to override it per instance method
@@ -60,5 +62,13 @@ module Resque
     end
 
     self.uniqueness_configuration = Configuration.new # setup defaults
+
+    module_function(:runtime_unique_log,
+                    :runtime_unique_debug,
+                    :uniq_config,
+                    :uniqueness_configure,
+                    :uniqueness_config_reset,
+                    :uniqueness_log_level,
+                    :uniqueness_log_level=)
   end
 end

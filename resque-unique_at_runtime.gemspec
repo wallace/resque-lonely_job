@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'A resque plugin that ensures job uniqueness at runtime.'
   spec.homepage      = 'http://github.com/pboling/resque-unique_at_runtime'
-  spec.required_ruby_version = '>= 1.9.3'
+  spec.required_ruby_version = '>= 2.3'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
@@ -21,10 +21,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'colorize', '~> 0.8'
   spec.add_runtime_dependency 'resque', '>= 1.2'
 
-  spec.add_development_dependency 'mock_redis'
+  spec.add_development_dependency 'fakeredis', '~> 0.7'
   spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'rspec', '>= 3.0'
   spec.add_development_dependency 'rspec-block_is_expected', '~> 1.0'
+  spec.add_development_dependency 'rspec-stubbed_env', '~> 1.0'
   spec.add_development_dependency 'timecop'
 
   spec.add_development_dependency 'pry', '~> 0.11'

@@ -203,7 +203,7 @@ It can tell you if a job with a specific signature is running, based on the
  presence of the runtime uniqueness key.
 
 Caveat: It can be difficult to get the signature right, especially if you have
-tools that enhance job signatures with options.  The signature is always 
+tools that enhance job signatures with options.
 
 ## Contributing
 
@@ -234,9 +234,8 @@ dependency on this gem using the [Pessimistic Version Constraint][pvc] with two 
 For example:
 
 ```ruby
-spec.add_dependency 'unique_at_runtime', '~> 0.0'
+spec.add_dependency 'resque-unique_at_runtime', '~> 1.0'
 ```
-
 
 ## License
 
