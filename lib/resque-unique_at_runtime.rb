@@ -61,6 +61,14 @@ module Resque
       @uniqueness_configuration.log_level = log_level
     end
 
+    def unique_at_runtime_key_base
+      Configuration.unique_at_runtime_key_base
+    end
+
+    def unique_at_runtime_key_base=(key_base)
+      Configuration.unique_at_runtime_key_base = key_base
+    end
+
     self.uniqueness_configuration = Configuration.new # setup defaults
 
     module_function(:runtime_unique_log,
@@ -69,6 +77,8 @@ module Resque
                     :uniqueness_configure,
                     :uniqueness_config_reset,
                     :uniqueness_log_level,
-                    :uniqueness_log_level=)
+                    :uniqueness_log_level=,
+                    :unique_at_runtime_key_base,
+                    :unique_at_runtime_key_base=)
   end
 end

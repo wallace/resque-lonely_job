@@ -10,14 +10,20 @@ module Resque
 
       attr_accessor :logger,
                     :log_level,
-                    :unique_at_runtime_key_base,
                     :lock_timeout,
                     :requeue_interval,
                     :debug_mode
+
+      class << self
+        attr_accessor :unique_at_runtime_key_base
+      end
+      # Normally isn't set per job, so it will match across all runtime jobs.
+      @unique_at_runtime_key_base = DEFAULT_AT_RUNTIME_KEY_BASE
+
       def initialize(**options)
         @logger = options.key?(:logger) ? options[:logger] : Logger.new(STDOUT)
         @log_level = options.key?(:log_level) ? options[:log_level] : :debug
-        @unique_at_runtime_key_base = options.key?(:unique_at_runtime_key_base) ? options[:unique_at_runtime_key_base] : DEFAULT_AT_RUNTIME_KEY_BASE
+        @unique_at_runtime_key_base = options.key?(:unique_at_runtime_key_base) ? options[:unique_at_runtime_key_base] : nil
         @lock_timeout = options.key?(:lock_timeout) ? options[:lock_timeout] : DEFAULT_LOCK_TIMEOUT
         @requeue_interval = options.key?(:requeue_interval) ? options[:requeue_interval] : DEFAULT_REQUEUE_INTERVAL
         env_debug = ENV['RESQUE_DEBUG']
@@ -34,6 +40,10 @@ module Resque
 
       def log(msg)
         Resque::UniqueAtRuntime.runtime_unique_log(msg, self)
+      end
+
+      def unique_at_runtime_key_base
+        @unique_at_runtime_key_base || self.class.unique_at_runtime_key_base
       end
 
       def to_hash
