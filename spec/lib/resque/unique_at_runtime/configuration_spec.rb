@@ -92,7 +92,11 @@ describe Resque::UniqueAtRuntime::Configuration do
       it('returns a hash') do
         is_expected.to eq({
             log_level: :info,
-            logger: logger
+            logger: logger,
+            debug_mode: false, # nil becomes false
+            unique_at_runtime_key_base: unique_at_runtime_key_base,
+            lock_timeout: lock_timeout,
+            requeue_interval: requeue_interval
                           })
       end
     end

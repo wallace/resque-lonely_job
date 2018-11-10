@@ -39,7 +39,11 @@ module Resque
       def to_hash
         {
           logger: logger,
-          log_level: log_level
+          log_level: log_level,
+          debug_mode: debug_mode,
+          unique_at_runtime_key_base: unique_at_runtime_key_base,
+          lock_timeout: lock_timeout,
+          requeue_interval: requeue_interval
         }
       end
     end
