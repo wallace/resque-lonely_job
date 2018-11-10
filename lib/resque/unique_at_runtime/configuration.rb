@@ -21,7 +21,7 @@ module Resque
         @lock_timeout = options.key?(:lock_timeout) ? options[:lock_timeout] : DEFAULT_LOCK_TIMEOUT
         @requeue_interval = options.key?(:requeue_interval) ? options[:requeue_interval] : DEFAULT_REQUEUE_INTERVAL
         env_debug = ENV['RESQUE_DEBUG']
-        @debug_mode = options.key?(:debug_mode) ? options[:debug_mode] : env_debug == 'true' || (env_debug.is_a?(String) && env_debug.match?(/runtime/))
+        @debug_mode = !!(options.key?(:debug_mode) ? options[:debug_mode] : env_debug == 'true' || (env_debug.is_a?(String) && env_debug.match?(/runtime/)))
       end
 
       def unique_logger
