@@ -19,15 +19,15 @@ A [semanticaly versioned](http://semver.org/)
 [Resque](https://github.com/resque/resque) plugin which ensures for a given
 queue, that only one worker is working on a job at any given time.
 
-Resque::Plugins::UniqueAtRuntime differs from [resque-lonely_job](https://github.com/wallace/resque-lonely_job) in that it is compatible with, and can be used at the same time as, [resque-solo](https://github.com/neighborland/resque_solo).
+Resque::Plugins::UniqueAtRuntime (this gem) differs from [resque-lonely_job](https://github.com/wallace/resque-lonely_job) in that it is compatible with, and can be used at the same time as, [resque-unique_in_queue](https://github.com/pboling/resque-unique_in_queue).
 
-Resque::Plugins::UniqueAtRuntime differs from [resque_solo](https://github.com/neighborland/resque_solo) in that `resque-solo` offers **queue-time** uniqueness, while `resque-unique_at_runtime` offers **runtime** uniqueness.  The same difference applies to other queue-time uniqueness gems: [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock).
+Resque::Plugins::UniqueAtRuntime differs from [resque-unique_in_queue](https://github.com/pboling/resque-unique_in_queue) in that `resque-unique_in_queue` offers **queue-time** uniqueness, while `resque-unique_at_runtime` offers **runtime** uniqueness.  The same difference applies to other queue-time uniqueness gems: [resque-queue-lock](https://github.com/mashion/resque-queue-lock), [resque-lock](https://github.com/defunkt/resque-lock).
 
 Runtime uniqueness without queue-time uniqueness means the same job may be queued multiple times but you're guaranteed that first job queued will run to completion before subsequent jobs are run.
   
 However, you can use both runtime and queue-time uniqueness together in the same project.
 
-To use `resque-solo` and `resque-unique_at_runtime` together, with fine control of per job configuration of uniqueness at runtime and queue-time, it is recommended to use [resque-unique_by_arity](https://github.com/pboling/resque-unique_by_arity).
+To use `resque-unique_in_queue` and `resque-unique_at_runtime` together, with fine control of per job configuration of uniqueness at runtime and queue-time, it is recommended to use [resque-unique_by_arity](https://github.com/pboling/resque-unique_by_arity).
 
 NOTE: There is a *strong* possibility that subsequent jobs are re-ordered due to
 the implementation of
