@@ -25,17 +25,24 @@ module Resque
         end
 
         def runtime_lock_timeout
-          instance_variable_get(:@runtime_lock_timeout) || Resque::UniqueAtRuntime.uniq_config&.lock_timeout
+          instance_variable_get(:@runtime_lock_timeout) ||
+              instance_variable_set(:@runtime_lock_timeout, Resque::UniqueAtRuntime.configuration&.lock_timeout)
         end
 
         def runtime_requeue_interval
-          instance_variable_get(:@runtime_requeue_interval) || Resque::UniqueAtRuntime.uniq_config&.requeue_interval
+          instance_variable_get(:@runtime_requeue_interval) ||
+              instance_variable_set(:@runtime_requeue_interval, Resque::UniqueAtRuntime.configuration&.requeue_interval)
+        end
+
+        def unique_at_runtime_key_base
+          instance_variable_get(:@unique_at_runtime_key_base) ||
+              instance_variable_set(:@unique_at_runtime_key_base, Resque::UniqueAtRuntime.configuration&.unique_at_runtime_key_base)
         end
 
         # Overwrite this method to uniquely identify which mutex should be used
         # for a resque worker.
         def unique_at_runtime_redis_key(*_)
-          Resque::UniqueAtRuntime.runtime_unique_debug("getting key for #{@queue}!")
+          Resque::UniqueAtRuntime.debug("getting key for #{@queue}!")
           "#{unique_at_runtime_key_base}:#{@queue}"
         end
 
@@ -50,7 +57,7 @@ module Resque
           key = unique_at_runtime_redis_key(*args)
           timeout = runtime_lock_timeout_at(now)
 
-          Resque::UniqueAtRuntime.runtime_unique_debug("attempting to lock queue with #{key}")
+          Resque::UniqueAtRuntime.debug("attempting to lock queue with #{key}")
 
           # Per http://redis.io/commands/setnx
           return false if Resque.redis.setnx(key, timeout)
@@ -62,7 +69,7 @@ module Resque
 
         def unlock_queue(*args)
           key = unique_at_runtime_redis_key(*args)
-          Resque::UniqueAtRuntime.runtime_unique_debug("unlock queue with #{key}")
+          Resque::UniqueAtRuntime.debug("unlock queue with #{key}")
           Resque.redis.del(key)
         end
 
@@ -72,7 +79,7 @@ module Resque
 
         def before_perform_lock_runtime(*args)
           if (key = queue_locked?(*args))
-            Resque::UniqueAtRuntime.runtime_unique_debug("failed to lock queue with #{key}")
+            Resque::UniqueAtRuntime.debug("failed to lock queue with #{key}")
 
             # Sleep so the CPU's rest
             sleep(runtime_requeue_interval)
@@ -83,7 +90,7 @@ module Resque
             # and don't perform
             raise Resque::Job::DontPerform
           else
-            Resque::UniqueAtRuntime.runtime_unique_debug('check passed will perform')
+            Resque::UniqueAtRuntime.debug('check passed will perform')
             true
           end
         end
@@ -98,12 +105,8 @@ module Resque
         #   duplicates the on_failure unlock, but that's a small price to pay for
         #   uniqueness.
         def on_failure_unlock_runtime(*args)
-          Resque::UniqueAtRuntime.runtime_unique_debug('on failure unlock')
+          Resque::UniqueAtRuntime.debug('on failure unlock')
           unlock_queue(*args)
-        end
-
-        def unique_at_runtime_key_base
-          instance_variable_get(:@unique_at_runtime_key_base) || Resque::UniqueAtRuntime.uniq_config&.unique_at_runtime_key_base
         end
       end
     end

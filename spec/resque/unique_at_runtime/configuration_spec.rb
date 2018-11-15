@@ -10,17 +10,30 @@ describe Resque::UniqueAtRuntime::Configuration do
     let(:lock_timeout) { 1000 }
     let(:requeue_interval) { 3 }
     let(:debug_mode) { nil }
-    let(:options) do
-      {
-        logger: logger,
-        log_level: log_level,
-        unique_at_runtime_key_base: unique_at_runtime_key_base,
-        lock_timeout: lock_timeout,
-        requeue_interval: requeue_interval,
-        debug_mode: debug_mode
-      }
+    before do
+      @logger = described_class.instance.logger
+      @log_level = described_class.instance.log_level
+      @unique_at_runtime_key_base = described_class.instance.unique_at_runtime_key_base
+      @lock_timeout = described_class.instance.lock_timeout
+      @requeue_interval = described_class.instance.requeue_interval
+      @debug_mode = described_class.instance.debug_mode
+
+      described_class.instance.logger = logger
+      described_class.instance.log_level = log_level
+      described_class.instance.unique_at_runtime_key_base = unique_at_runtime_key_base
+      described_class.instance.lock_timeout = lock_timeout
+      described_class.instance.requeue_interval = requeue_interval
+      described_class.instance.debug_mode = debug_mode
     end
-    let(:instance) { described_class.new(**options) }
+    after do
+      described_class.instance.logger = @logger
+      described_class.instance.log_level = @log_level
+      described_class.instance.unique_at_runtime_key_base = @unique_at_runtime_key_base
+      described_class.instance.lock_timeout = @lock_timeout
+      described_class.instance.requeue_interval = @requeue_interval
+      described_class.instance.debug_mode = @debug_mode
+    end
+    let(:instance) { described_class.instance }
     describe "#initialize" do
       subject { instance }
       it 'does not raise' do
@@ -76,14 +89,6 @@ describe Resque::UniqueAtRuntime::Configuration do
       end
     end
 
-    describe '#log' do
-      subject { instance.log('warbler') }
-      it('logs') do
-        expect(logger).to receive(:info).with('warbler')
-        block_is_expected.not_to raise_error
-      end
-    end
-
     describe '#to_hash' do
       subject { instance.to_hash }
       it('does not raise') do
@@ -91,12 +96,12 @@ describe Resque::UniqueAtRuntime::Configuration do
       end
       it('returns a hash') do
         is_expected.to eq({
+            debug_mode: false, # normalized to true || false
+            lock_timeout: lock_timeout,
             log_level: :info,
             logger: logger,
-            debug_mode: false, # normalized to true || false
-            unique_at_runtime_key_base: unique_at_runtime_key_base,
-            lock_timeout: lock_timeout,
-            requeue_interval: requeue_interval
+            requeue_interval: requeue_interval,
+            unique_at_runtime_key_base: unique_at_runtime_key_base
                           })
       end
     end

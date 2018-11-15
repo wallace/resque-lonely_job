@@ -58,6 +58,25 @@ Or install it yourself as:
 
 ## Usage
 
+`resque-unique_at_runtime` utilizes 3 class instance variables that can be set
+in your Jobs, in addition to the standard `@queue`.  Here they are, with their
+default values:
+
+```ruby
+@runtime_lock_timeout = 60 * 60 * 24 * 5
+@runtime_requeue_interval = 1
+@unique_at_runtime_key_base = 'r-uar'.freeze
+```
+
+The last one, in normal circumstances, shouldn't be set as different per class,
+or uniqueness cleanup becomes more difficult.
+
+It should be set only once, globally:
+
+```ruby
+Resque::UniqueAtRuntime.configuration.unique_at_runtime_key_base = 'my-custom'
+```
+
 #### Example #1 -- One job running per queue
 
     require 'resque-unique_at_runtime'
