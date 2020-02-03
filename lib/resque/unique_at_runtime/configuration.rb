@@ -50,7 +50,7 @@ module Resque
 
       def debug_mode_from_env
         env_debug = ENV['RESQUE_DEBUG']
-        @debug_mode = !!(env_debug == 'true' || (env_debug.is_a?(String) && env_debug.match?(/runtime/)))
+        @debug_mode = !!(env_debug == 'true' || (env_debug.is_a?(String) && env_debug.match(/runtime/)))
       end
     end
   end
