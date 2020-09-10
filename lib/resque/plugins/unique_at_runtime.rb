@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 module Resque
@@ -43,7 +44,7 @@ module Resque
         # for a resque worker.
         def unique_at_runtime_redis_key(*_)
           Resque::UniqueAtRuntime.debug("getting key for #{@queue}!")
-          "#{unique_at_runtime_key_base}:#{@queue}"
+          @queue
         end
 
         # returns true if the job signature can be locked (is not currently locked)
@@ -59,10 +60,12 @@ module Resque
 
           Resque::UniqueAtRuntime.debug("attempting to lock queue with #{key}")
 
-          # Per http://redis.io/commands/setnx
-          return false if Resque.redis.setnx(key, timeout)
-          return key if Resque.redis.get(key).to_i > now
-          return false if Resque.redis.getset(key, timeout).to_i <= now
+          # Per http://redis.io/commands/hsetnx
+          return false if Resque.redis.hsetnx(unique_at_runtime_key_base, key, timeout)
+          previous_timeout = Resque.redis.hget(unique_at_runtime_key_base, key).to_i
+          return key if previous_timeout > now
+          Resque.redis.hset(unique_at_runtime_key_base, key, timeout)
+          return false if previous_timeout <= now
 
           key
         end
@@ -70,7 +73,7 @@ module Resque
         def unlock_queue(*args)
           key = unique_at_runtime_redis_key(*args)
           Resque::UniqueAtRuntime.debug("unlock queue with #{key}")
-          Resque.redis.del(key)
+          Resque.redis.hdel(unique_at_runtime_key_base, key)
         end
 
         def reenqueue(*args)
