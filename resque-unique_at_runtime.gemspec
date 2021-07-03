@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '>= 3.0'
   spec.add_development_dependency 'rspec-block_is_expected', '~> 1.0'
   spec.add_development_dependency 'rspec-stubbed_env', '~> 1.0'
-  spec.add_development_dependency 'rubocop', '~> 0.60'
+  spec.add_development_dependency 'rubocop', '~> 1.18'
   spec.add_development_dependency 'rubocop-rspec', '~> 1.30'
   spec.add_development_dependency 'timecop'
 
