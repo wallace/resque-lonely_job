@@ -10,7 +10,7 @@ group :test do
     gem 'pry', '~> 0', platform: :mri, require: false
     gem 'pry-byebug', '~> 3', platform: :mri, require: false
   end
-  gem 'rubocop', '~> 0.90.0'
+  gem 'rubocop', '~> 1.18.2'
   gem 'rubocop-rspec', '~> 1.41.0'
   gem 'simplecov', '~> 0', require: false
 end
